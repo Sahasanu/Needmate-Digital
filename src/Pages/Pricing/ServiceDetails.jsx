@@ -1,15 +1,18 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
-import { FEATURES, TIMELINE } from "../../data/planDetails";
-
+import { Link, useParams, useNavigate } from "react-router-dom";
 import usePricing from "../../hooks/usePricing";
+import useCheckout from "../../hooks/useCheckout";
+import useCoupon from "../../hooks/useCoupon";
+import useAuth from "../../hooks/useAuth";
 import { fetchServiceWithPlans } from "../../services/firebase/service";
-
+import LoginPromptModal from "../../Components/ui/LoginPromptModal";
+import CashCodeModal from "./Sections/CashCodeModal";
 import ServiceHero from "./Sections/ServiceHero";
 import FeatureGrid from "./Sections/FeatureGrid";
 import PlanSelector from "./Sections/PlanSelector";
 import Timeline from "./Sections/Timeline";
 import OrderSummary from "./Sections/OrderSummary";
+import { TIMELINE } from "../../data/Timeline";
 
 export default function ServiceDetails() {
   const { id } = useParams();
@@ -21,10 +24,19 @@ export default function ServiceDetails() {
   const [error, setError] = useState(null);
 
   const [selectedPlanId, setSelectedPlanId] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("Full");
-  const [couponDiscount, setCouponDiscount] = useState(0);
-  const [couponMessage, setCouponMessage] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("FULL");
+
+  const { applyCoupon, couponData, couponError, couponLoading } = useCoupon();
+  const { handleCheckoutFlow, checkoutLoading, checkoutError } = useCheckout();
+  const navigate = useNavigate();
+
+  const couponDiscount = couponData?.discountAmount || 0;
+  const couponMessage = couponError || (couponData ? "Coupon applied successfully!" : "");
   const [showOrderSummary, setShowOrderSummary] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showCashModal, setShowCashModal] = useState(false);
+  const [cashContext, setCashContext] = useState(null); // { serviceId, planId, couponCode }
+  const { currentUser } = useAuth();
 
   // Fetch the service and its merged plans on mount
   useEffect(() => {
@@ -33,10 +45,10 @@ export default function ServiceDetails() {
       setError(null);
       try {
         const { service, plans } = await fetchServiceWithPlans(id);
-        
+
         setService(service);
         setPlansArray(plans);
-        
+
         // Convert array to map for easy lookup by ID
         const map = {};
         plans.forEach(p => {
@@ -60,15 +72,12 @@ export default function ServiceDetails() {
   }, [id]);
 
   const currentPlan = plansMap[selectedPlanId] || { months: 1, discount: 0, tag: "", description: "", name: "", price: 0 };
-  
   const basePrice = currentPlan.price || 0;
-
   const pricing = usePricing(
     currentPlan,
     basePrice,
     couponDiscount
   );
-
   if (isLoading) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6">
@@ -98,51 +107,57 @@ export default function ServiceDetails() {
     );
   }
 
-  const handleApplyCoupon = (code) => {
-    const normalized = code.trim().toUpperCase();
-
-    if (normalized === "SAVE10") {
-      setCouponDiscount(Math.round(pricing.subtotal * 0.1));
-      setCouponMessage("Coupon applied! 10% discount added.");
-      return;
+  const handleApplyCoupon = async (code) => {
+    if (!code.trim()) return;
+    try {
+      await applyCoupon(code, id, selectedPlanId, paymentMethod);
+    } catch (error) {
+      console.error("Coupon failed", error);
     }
-
-    if (normalized === "NEEDMATE") {
-      setCouponDiscount(500);
-      setCouponMessage("Coupon applied! ₹500 off your order.");
-      return;
-    }
-
-    setCouponDiscount(0);
-    setCouponMessage(
-      "Invalid coupon code. Try SAVE10 or NEEDMATE."
-    );
   };
 
-  const handleCheckout = () => {
-    window.alert(
-      `Order confirmed!
-
-Service: ${service.title}
-Plan: ${currentPlan.name}
-Payment: ${paymentMethod}
-Total: ₹${pricing.grand.toLocaleString("en-IN")}
-
-Thank you for choosing NeedMet Digital!`
-    );
+  const handleCheckout = async () => {
+    if (!currentUser) {
+      setShowAuthModal(true);
+      return;
+    }
+    await handleCheckoutFlow({
+      serviceId: id,
+      planId: selectedPlanId,
+      paymentMethod,
+      couponCode: couponData ? couponData.code : undefined,
+      onSuccess: (paymentId) => {
+        navigate("/checkout/success");
+      },
+      onFailure: (errorMsg) => {
+        navigate(`/checkout/failure?error=${encodeURIComponent(errorMsg)}`);
+      },
+      onCashPayment: (context) => {
+        setCashContext(context);
+        setShowCashModal(true);
+      }
+    });
   };
 
   return (
-    <>
+    <div style={{ zoom: 0.90 }}>
+      <LoginPromptModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <CashCodeModal
+        isOpen={showCashModal}
+        onClose={() => setShowCashModal(false)}
+        serviceId={cashContext?.serviceId}
+        planId={cashContext?.planId}
+        couponCode={cashContext?.couponCode}
+      />
       {/* Main Layout */}
-      <div className="mx-auto max-w-7xl px-6 py-10 pb-32 lg:pb-10">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+      <div className="mx-auto max-w-7xl px-5 sm:px-0 py-10 pb-32 lg:pb-10">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
 
           {/* Left */}
-          <main className="space-y-12 lg:col-span-8">
+          <main className="space-y-4 lg:col-span-8">
             <ServiceHero service={service} />
 
-            <FeatureGrid features={FEATURES} />
+            <FeatureGrid features={currentPlan?.features || []} />
 
             <PlanSelector
               plans={plansArray}
@@ -165,6 +180,7 @@ Thank you for choosing NeedMet Digital!`
                 onApplyCoupon={handleApplyCoupon}
                 couponMessage={couponMessage}
                 onCheckout={handleCheckout}
+                checkoutLoading={checkoutLoading}
               />
             </div>
           </aside>
@@ -245,6 +261,7 @@ Thank you for choosing NeedMet Digital!`
                 setPaymentMethod={setPaymentMethod}
                 onApplyCoupon={handleApplyCoupon}
                 couponMessage={couponMessage}
+                checkoutLoading={checkoutLoading}
                 onCheckout={() => {
                   setShowOrderSummary(false);
                   handleCheckout();
@@ -256,6 +273,6 @@ Thank you for choosing NeedMet Digital!`
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }

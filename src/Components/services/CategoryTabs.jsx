@@ -32,7 +32,7 @@ export default function CategoryTabs({
                             : "bg-primary-surface text-text-secondary hover:bg-primary-surface"
                         }`}
                 >
-                    {category.name}
+                    {category}
                 </button>
             ))}
         </div>

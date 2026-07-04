@@ -10,7 +10,7 @@ export default function HelpCard() {
       <button
         type="button"
         onClick={() => window.location.href = "mailto:hello@needmetdigital.com?subject=Schedule%20a%20Call"}
-        className="mt-2 w-full rounded-xl border border-primary py-1 text-primary transition hover:bg-primary hover:text-white"
+        className=" text-sm sm:text-md mt-2 w-full rounded-xl border border-primary py-1 text-primary transition hover:bg-primary hover:text-white"
       >
         Schedule Call
       </button>

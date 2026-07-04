@@ -5,7 +5,7 @@ export default function ServiceGrid({
     services,
     featuredService
 }) {
-
+ console.log(services)
     return (
 
         <section id="services" className="py-20 scroll-mt-36">
@@ -21,9 +21,9 @@ export default function ServiceGrid({
                             id={service.id}
                             title={service.title}
                             description={service.description}
-                            image={service.image || service.imgUrl}
+                            image={service.imageUrl}
                             icon={service.icon}
-                            price={service.pricing?.price ? `₹${service.pricing.price.toLocaleString("en-IN")}` : service.price}
+                            price={service.plans[0]?.price ? `₹${service.plans[0]?.price.toLocaleString("en-IN")}` : service.price}
                             tags={service.tags}
                             badge={service.badge}
                             badgeColor={service.badgeColor}

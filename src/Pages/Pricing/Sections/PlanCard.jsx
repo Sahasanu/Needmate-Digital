@@ -28,7 +28,9 @@ export default function PlanCard({
         <span className="text-3xl font-bold text-primary">
           ₹{basePrice ? basePrice.toLocaleString() : 0}
         </span>
-        <span className="pb-1 text-sm text-text-secondary">/month</span>
+        <span className="pb-1 text-sm text-text-secondary">
+          / {plan.duration || "total"}
+        </span>
       </div>
 
       {plan.discount > 0 && (

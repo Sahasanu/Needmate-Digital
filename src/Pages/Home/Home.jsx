@@ -7,10 +7,6 @@ import ServiceGrid from "../../Components/services/ServiceGrid";
 import CTASection from "../../Components/cta/CTASection";
 import ReviewSection from "../../Components/reviews/ReviewSection";
 
-// import SERVICES_DATA from "../../data/services";
-// import REVIEWS_DATA from "../../data/reviews";
-import CATEGORIES from "../../data/categories";
-
 import useParallax from "../../hooks/useParallax";
 import { scrollToSection } from "../../utils/scrollTo";
 import { fetchServices, fetchReviews, fetchCategories } from "../../services/db";

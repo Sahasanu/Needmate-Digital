@@ -20,50 +20,16 @@ export const fetchServiceWithPlans = async (serviceId) => {
 
         const serviceData = { id: serviceSnap.id, ...serviceSnap.data() };
         
-        // 2. Fetch all pricing links for this service from the "servicePlans" collection
-        const servicePlansQuery = query(
-            collection(db, "servicePlans"),
-            where("serviceId", "==", String(serviceId))
-        );
-        const servicePlansSnap = await getDocs(servicePlansQuery);
-        
-        const pricingMap = {};
-        servicePlansSnap.forEach((doc) => {
-            const data = doc.data();
-            if (data.active !== false) { // only include active plans
-                pricingMap[data.planId] = {
-                    price: data.price,
-                    discount: data.discount || 0
-                };
-            }
-        });
+        // The plans are now embedded inside the service document
+        let plans = serviceData.plans || [];
 
-        // 3. Fetch all plan documents from the "plans" collection
-        const plansQuerySnap = await getDocs(collection(db, "plans"));
-        const mergedPlans = [];
-
-        plansQuerySnap.forEach((planDoc) => {
-            const planData = { id: planDoc.id, ...planDoc.data() };
-
-            // 4. Merge each plan with its corresponding pricing from servicePlans
-            // Skip plans that don't have pricing linked for this service
-            if (pricingMap[planDoc.id]) {
-                const planPricing = pricingMap[planDoc.id];
-                
-                mergedPlans.push({
-                    ...planData,
-                    price: planPricing.price,
-                    discount: planPricing.discount
-                });
-            }
-        });
-
-        // 5. Sort the merged plans by months in ascending order
-        mergedPlans.sort((a, b) => a.months - b.months);
+        // Add 'id' field to each plan (mapped from planId) for backward compatibility
+        // and sort by durationDays ascending (or price)
+        plans = plans.map(p => ({ ...p, id: p.planId })).sort((a, b) => (a.durationDays || 0) - (b.durationDays || 0));
 
         return {
             service: serviceData,
-            plans: mergedPlans
+            plans: plans
         };
 
     } catch (error) {

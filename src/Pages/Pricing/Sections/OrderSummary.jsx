@@ -6,11 +6,11 @@ import PriceBreakdown from "./PriceBreakDown";
 import CheckoutButton from "./CheckoutButton";
 import HelpCard from "./HelpCard";
 
-export default function OrderSummary({ currentPlan, pricing, paymentMethod, setPaymentMethod, onApplyCoupon, couponMessage, onCheckout }) {
+export default function OrderSummary({ currentPlan, pricing, paymentMethod, setPaymentMethod, onApplyCoupon, couponMessage, onCheckout, checkoutLoading }) {
     return (
         <div
             className=" rounded-3xl " >
-            <div className="space-y-5 sticky top-24">
+            <div className="space-y-4 sticky top-24">
                 <div className=" rounded-3xl bg-white p-4 shadow-lg ">
                     <h2 className="mb-2 text-2xl font-bold border-b-1 border-gray-200/30 "> Order Summary  </h2>
                     <PriceBreakdown plan={currentPlan} pricing={pricing} />
@@ -25,7 +25,7 @@ export default function OrderSummary({ currentPlan, pricing, paymentMethod, setP
                         paymentMethod={paymentMethod}
                         setPaymentMethod={setPaymentMethod} />
                     <div className="mt-6">
-                        <CheckoutButton onClick={onCheckout} />
+                        <CheckoutButton onClick={onCheckout} isLoading={checkoutLoading} />
                     </div>
                     <div className=" mt-1 pt-1 flex items-center justify-center gap-1 text-secondary text-label-sm text-xs">
                         <span className="material-symbols-outlined icon-sm">lock</span>

@@ -1,19 +1,40 @@
 import { useNavigate } from "react-router-dom";
+import { getIconForTitle } from "../icons/title.icon";
+
+const BADGE_COLORS = [
+    "bg-emerald-500 text-white",
+    "bg-violet-500 text-white",
+    "bg-amber-400 text-gray-900",
+    "bg-sky-500 text-white",
+    "bg-rose-500 text-white",
+    "bg-teal-500 text-white",
+    "bg-indigo-500 text-white",
+    "bg-orange-500 text-white",
+];
+
+function getBadgeColor(str) {
+    if (!str) return BADGE_COLORS[0];
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return BADGE_COLORS[Math.abs(hash) % BADGE_COLORS.length];
+}
 
 export default function ServiceCard({
     id,
     title,
     description,
     image,
-    icon,
+    // icon,   // commented out — icon is now resolved from title.icon.js
     price,
     tags = [],
     badge,
-    badgeColor,
     featured = false,
     buttonIcon = "add_shopping_cart"
 }) {
     const navigate = useNavigate();
+    const icon = getIconForTitle(title); // derive icon from title
 
     const handleCardClick = () => {
         if (id) {
@@ -46,7 +67,7 @@ export default function ServiceCard({
 
                 {badge && (
                     <div className="absolute top-4 left-4">
-                        <span className={`${badgeColor || "bg-white/90 text-primary"} backdrop-blur px-3 py-1 rounded-full text-xs font-semibold shadow-sm`}>
+                        <span className={`${getBadgeColor(badge)} px-3 py-1 rounded-full text-xs font-semibold shadow-sm`}>
                             {badge}
                         </span>
                     </div>
@@ -70,7 +91,7 @@ export default function ServiceCard({
 
                 {/* DESCRIPTION */}
                 <p
-                    className="text-sm text-text-secondary line-clamp-2 h-[40px] leading-tight"
+                    className="text-sm text-text-secondary line-clamp-2 h-[40px] leading-tight border border-white"
                     title={description}
                 >
                     {description}

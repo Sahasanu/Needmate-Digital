@@ -5,7 +5,7 @@ export default function ServiceInfo({ service }) {
         <div className="space-y-4 sm:space-y-6">
             <div className="group relative h-[260px] overflow-hidden rounded-2xl sm:h-[340px] sm:rounded-3xl lg:h-[420px] lg:rounded-[32px]">
                 <img
-                    src={service.image}
+                    src={service.imageUrl || service.image}
                     alt={service.title}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -18,9 +18,12 @@ export default function ServiceInfo({ service }) {
                         {service.category || service.tags?.[0] || "Digital Service"}
                     </span>
 
-                    <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+                    <div className="mt-3 text-2xl font-bold leading-tight sm:text-4xl lg:text-5xl flex  items-center gap-2">
                         {service.title}
-                    </h1>
+                        {/* <div className="sm:hidden">
+                            <span className="material-symbols-outlined text-white icon-md ">verified</span>
+                        </div> */}
+                    </div>
 
                 </div>
             </div>

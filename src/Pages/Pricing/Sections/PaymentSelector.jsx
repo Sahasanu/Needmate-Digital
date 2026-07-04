@@ -14,8 +14,8 @@ export default function PaymentSelector({
         <PaymentOption
           icon="payments"
           label="Full"
-          selected={paymentMethod === "Full"}
-          onClick={() => setPaymentMethod("Full")}
+          selected={paymentMethod === "FULL"}
+          onClick={() => setPaymentMethod("FULL")}
         />
 
         <PaymentOption
@@ -25,12 +25,19 @@ export default function PaymentSelector({
           onClick={() => setPaymentMethod("EMI")}
         />
 
-        <PaymentOption
+        {/* <PaymentOption
           icon="account_balance"
           label="Transfer"
           selected={paymentMethod === "Transfer"}
           onClick={() => setPaymentMethod("Transfer")}
+        /> */}
+        <PaymentOption
+          icon="money"
+          label="Cash"
+          selected={paymentMethod === "CASH"}
+          onClick={() => setPaymentMethod("CASH")}
         />
+
       </div>
     </div>
   );

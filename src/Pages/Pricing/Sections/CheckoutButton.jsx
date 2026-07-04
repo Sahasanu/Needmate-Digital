@@ -1,11 +1,10 @@
-export default function CheckoutButton({ onClick }) {
-
+export default function CheckoutButton({ onClick, isLoading }) {
     return (
-
         <button
             type="button"
             onClick={onClick}
-            className="
+            disabled={isLoading}
+            className={`
             w-full
             rounded-xl
             bg-gradient-to-r
@@ -15,12 +14,10 @@ export default function CheckoutButton({ onClick }) {
             font-semibold
             text-white
             transition-transform
-            hover:scale-[1.02]
-            "
+            ${isLoading ? "opacity-75 cursor-not-allowed" : "hover:scale-[1.02]"}
+            `}
         >
-
-            Proceed to Payment
-
+            {isLoading ? "Processing..." : "Proceed to Payment"}
         </button>
 
     );

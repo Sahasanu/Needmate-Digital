@@ -3,17 +3,15 @@ import { useMemo } from "react";
 export default function usePricing(plan, basePrice, couponDiscount = 0) {
 
     return useMemo(() => {
-        const total = basePrice * plan.months;
+        const total = plan.price || 0;
         const discountAmount = plan.discount || 0;
-        const subtotal = total - discountAmount;
-        const tax = Math.round(subtotal * 0.05);
-        const grand = subtotal + tax - couponDiscount;
+        const subtotal = Math.max(total - discountAmount, 0);
+        const grand = subtotal - couponDiscount;
 
         return {
-            baseprice:basePrice,
+            baseprice: basePrice,
             total,
             subtotal,
-            tax,
             couponDiscount,
             grand: Math.max(grand, 0),
         };

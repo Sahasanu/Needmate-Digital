@@ -4,7 +4,7 @@ export default function FeatureCard({
   description
 }) {
   return (
-    <div className="rounded-[24px] border border-border/30 bg-white p-3 transition-all hover:-translate-y-1 hover:shadow-lg">
+    <div className="rounded-[24px] max-h-20 border border-border/30 bg-white p-3 transition-all hover:-translate-y-1 hover:shadow-lg">
       <div className="flex gap-4">
         <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
           <span className="material-symbols-outlined text-primary">

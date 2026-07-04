@@ -7,15 +7,21 @@ export default function PriceBreakdown({ plan, pricing }) {
 
   return (
     <div className="space-y-2">
+
       <div className="flex justify-between">
-        <span>Selected Plan</span>
-        <span>{plan.months}</span>
+        <span>Plan</span>
+        <span>{plan.name}</span>
       </div>
 
       <div className="flex justify-between">
+        <span>Plan for</span>
+        <span>{plan.duration}</span>
+      </div>
+
+      {/* <div className="flex justify-between">
         <span>Monthly</span>
         <span>{formatCurrency(pricing.baseprice)}</span>
-      </div>
+      </div> */}
 
       <div className="flex justify-between">
         <span>Subtotal</span>
@@ -23,14 +29,10 @@ export default function PriceBreakdown({ plan, pricing }) {
       </div>
 
       <div className="flex justify-between">
-        <span>Discount</span>
+        <span>You Saved</span>
         <span>-{formatCurrency(plan.discount)}</span>
       </div>
 
-      <div className="flex justify-between">
-        <span>Tax</span>
-        <span>{formatCurrency(pricing.tax)}</span>
-      </div>
 
       {pricing.couponDiscount > 0 && (
         <div className="flex justify-between text-primary">
@@ -47,7 +49,7 @@ export default function PriceBreakdown({ plan, pricing }) {
           </span>
         </div>
       </div>
-      
+
     </div>
   );
 }
